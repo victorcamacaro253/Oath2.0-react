@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle,faFacebookF,faTwitter,faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEye,faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
+import '../css/login.css'
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -9,7 +12,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-
+    const navigate = useNavigate(); // Cambia esto
     // Manejar el login tradicional
     const handleTraditionalLogin = (e) => {
         e.preventDefault();
@@ -50,13 +53,23 @@ const Login = () => {
         window.location.href = `http://localhost:3009/auth/${provider}`;
     };
 
+    const handleRegisterRedirect = () => {
+        navigate('/register'); // Redirige al formulario de registro
+    };
+
     return (
-        <div>
+        <div className='auth'>
+            <div className='login'>
             <h2>Iniciar Sesión</h2>
+            <img src="./images/contrasena.png" alt="" />
+            </div>
+            
+           
 
             {/* Formulario de login tradicional */}
             <form onSubmit={handleTraditionalLogin} className='form-login'>
-                <div>
+                <div className='password-container'>
+                    <div className='email-container'>
                     <label htmlFor="email">Email</label>
                     <input
                         type="email"
@@ -65,8 +78,10 @@ const Login = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
+                    </div>
                 </div>
                 <div className='password-container'>
+                    <div className='email-container'>
                     <label htmlFor="password">Contraseña</label>
                     <input
                         type={showPassword ? 'text' : 'password'}
@@ -74,11 +89,11 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        style={{ flex: 1, marginRight: '8px' }} // Para que el input ocupe el espacio disponible
                     />
-                    <button type="button" onClick={togglePassword} style={{ cursor: 'pointer' }} className="password-toggle" >
+                    <button type="button" onClick={togglePassword} style={{ cursor: 'pointer' }} className="password-toggle-login" >
                         {showPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash} />}
                     </button>
+                    </div>
                 </div>
                 {error && <p className='error' style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Iniciar sesión</button>
@@ -91,6 +106,16 @@ const Login = () => {
                 <button className='github-button' onClick={() => handleLogin('github')}>Continuar con Github <FontAwesomeIcon icon={faGithub} /></button>
                 <button className='facebook-button' onClick={() => handleLogin('facebook')}>Continuar con Facebook <FontAwesomeIcon icon={faFacebookF} /></button>
             </div>
+
+            <p>
+                ¿No tienes una cuenta?  
+                <a 
+                    onClick={handleRegisterRedirect} 
+                    style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer',marginLeft:'5px' }}
+                >
+                     Regístrate
+                </a>
+            </p>
         </div>
     );
 };
