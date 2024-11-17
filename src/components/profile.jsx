@@ -1,8 +1,16 @@
+import { width } from "@fortawesome/free-brands-svg-icons/fa42Group";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom'; // Cambia useHistory por useNavigate
 const Profile = () => {
     // Crear el estado para almacenar los datos del usuario
     const [user, setUser] = useState(null);
+    const [apellido,setApellido] =useState('');
+    const [cedula, setCedula] = useState('');
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [formVisible, setFormVisible] = useState(false); // Estado para controlar la visibilidad del formulario
+
+
     const navigate = useNavigate(); // Hook para redirigir
 
 
@@ -25,9 +33,49 @@ const Profile = () => {
             // Actualizar el estado con los datos del usuario
             setUser(data);
             console.log(data)
+            // Verificar si los campos necesarios están vacíos
+            if (!data.apellido || !data.cedula || !data.correo) {
+                setFormVisible(true); // Mostrar el formulario si falta información
+            }
         })
         .catch(error => console.error('Error al obtener el usuario:', error));
     }, [navigate]);
+
+
+   const handleData=(e)=>{
+    e.preventDefault();
+
+    fetch(`http://localhost:3009/update/${user.id}`,{
+        method:'PUT',
+        headers:{
+            'Content-Type': 'application/json',
+        },
+        credentials:'include',
+        body:JSON.stringify({apellido,cedula,email})
+    })
+    .then(async response =>{
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Error al actualizar los datos');
+        }
+        return response.json();
+                
+    })
+    .then(data=>{
+        console.log('Datos Actualizados', data);
+        setError(''); // Limpiar el error si la actualización fue exitosa
+        setFormVisible(false); // Ocultar el formulario
+    })
+    .catch(error => {
+        console.error('Error de login:', error);
+        setError(error.message); // Mostrar el mensaje de error
+
+        
+    });
+
+   }
+
+
 
     // Mostrar una carga o los datos del usuario si están disponibles
     if (user === null) {
@@ -55,8 +103,62 @@ const Profile = () => {
             <p>Rol: {user.rol }</p>
             <p>{authMessage}</p>
 
-            {/* Si tienes una imagen de perfil, la muestras */}
-            {user.imagen && <img src={user.imagen} alt="Imagen de perfil" />}
+
+   {/* Si tienes una imagen de perfil, la muestras */}
+   {user.imagen && <img src={user.imagen} alt="Imagen de perfil" />}
+
+{ formVisible && (
+         <div className="auth complete" style={{height: '510px'}}>
+             <form onSubmit={handleData} className="form-login">
+
+                <h2>Para continuar termine de completar tu perfil</h2>
+                    <div className="password-container">
+                    <div className="email-container">
+
+                        <label>Apellido:</label>
+                        <input
+                        type="text"
+                        id="apellido"
+                        value={apellido}
+                        onChange={(e) => setApellido(e.target.value)}
+                      
+                        
+                    />
+                    </div>
+                    </div>
+
+                    <div className="password-container">
+                    <div className="email-container">
+                        <label>Cedula:</label>
+                        <input
+                        type="text"
+                        id="cedula"
+                        value={cedula}
+                        onChange={(e) => setCedula(e.target.value)}
+                    />
+                    </div>
+                    </div>
+
+                    
+                            <div className="password-container">
+                                <div className="email-container">
+                                    <label>Correo electrónico:</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        
+
+                
+                <button type="submit">Enviar</button>
+              </form>
+            </div>
+)}
+         
 
 
             <button onClick={() => window.location.href = 'http://localhost:3009/auth/logout'}>
